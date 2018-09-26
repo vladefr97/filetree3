@@ -28,6 +28,21 @@
 
         }
 
+        li{
+            list-style-type: none;
+        }
+        h1 {
+            color: red;
+            text-align: center;
+        }
+/*
+        div {
+            float: left;
+        }*/
+       /* p:hover{
+            cursor: pointer;
+        }*/
+
         .directory-style {
 
             list-style-image: url("https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png");
@@ -37,19 +52,6 @@
             list-style-image: url("https://icon-icons.com/icons2/93/PNG/32/page_document_16748.png");
 
         }
-
-        h1 {
-            color: red;
-            text-align: center;
-        }
-
-        div {
-            float: left;
-        }
-        p:hover{
-            cursor: pointer;
-        }
-
         .file-text-visible {
             width: 1000px;
             height: 600px;
@@ -69,6 +71,9 @@
             right: 20px;
             top: 60px;
             display: none;
+        }
+        .node-text{
+
         }
 
         .modal-window {
@@ -108,8 +113,19 @@
       /*Selected item*/
 
         .item-selected{
-            background-color: grey;
+            background-color: rgba(58, 66, 222, 0.6);
+            border-radius: 3px;
         }
+        .tree-node{
+            position: relative;
+        }
+        .tree-node span{
+
+            position: absolute;
+            left: 40px;
+            top:10px;
+        }
+
     </style>
 </head>
 <body>
@@ -128,16 +144,7 @@
     </div>
     <span class="close">&times;</span>
 </div>
-<div>
-    <ul class="ul-list">
-        <li class="li-list"><img src="https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png" alt="" class="img-list"><div class="p-list">файл 1</div></li>
-        <li><img src="https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png" alt=""><p>файл 2</p></li>
-        <li><img src="https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png" alt=""><p>файл 3</p></li>
-        <li><img src="https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png" alt=""><p>файл 4</p></li>
-    </ul>
 
-
-</div>
 <script>/*Modal window script*/
 var modal = document.getElementById("modal");
 var span = document.getElementsByClassName("close")[0];
@@ -186,20 +193,35 @@ function displayModalWindow(text) {
                 ulElement.setAttribute("class", "list-group");
                 for (var i = 0; i < files.length; i++) {
                     var liElement = document.createElement('li');
-                    var pElement = document.createElement('p');
-                    pElement.setAttribute("data-isDirectory", files[i].directory.toString());
-                    pElement.setAttribute("onclick", "getDataFromAPI(this)");
-                    pElement.innerText = files[i].fileName;
-                    pElement.id = files[i].absolutePath;
+                    var divElement = document.createElement('div');
+                  //  var innerDiv = document.createElement('div');
+                    var spanElement = document.createElement('span');
+                    var img = document.createElement('img');
                     if (files[i].directory.toString() == "true") {
-                        liElement.setAttribute("class", "directory-style");
+                        img.setAttribute("src","https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png")
+
                     }
                     else {
-                        liElement.setAttribute("class", "file-style");
+                        img.setAttribute("src","https://icon-icons.com/icons2/93/PNG/32/page_document_16748.png")
 
                     }
+                    //outerDiv.setAttribute("class","out-div");
+                    divElement.setAttribute("data-isDirectory", files[i].directory.toString());
+                    divElement.setAttribute("onclick", "getDataFromAPI(this)");
+                    divElement.setAttribute("class","tree-node");
+                    divElement.id = files[i].absolutePath;
+                    spanElement.innerText = files[i].fileName;
 
-                    liElement.appendChild(pElement);
+                    divElement.appendChild(img);
+                    divElement.appendChild(spanElement);
+
+                    liElement.appendChild(divElement);
+
+
+
+
+
+                   // liElement.appendChild(pElement);
                     ulElement.appendChild(liElement);
                 }
 
@@ -254,7 +276,8 @@ function displayModalWindow(text) {
         if (itemId == "content") {
             return;
         }
-        item.setAttribute("class", "item-selected");
+        item.add
+        item.setAttribute("class", "tree-node item-selected");
 
     }
 
