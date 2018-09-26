@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css"/><!--&ndash;&gt;
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css">-->
+    <!--<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>-->
+    <script>
+        $(document).ready(function () {
+
+
+            getDataFromAPI(document.getElementById("content"));
+
+
+        });
+
+
+    </script>
+    <style>
+        ul {
+            border-left: 1px dotted blue;
+            margin-left: 20px;
+            padding-left: 20px;
+            /* list-style-image: url("https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png");*/
+
+        }
+
+        .directory-style {
+
+            list-style-image: url("https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png");
+        }
+
+        .file-style {
+            list-style-image: url("https://icon-icons.com/icons2/93/PNG/32/page_document_16748.png");
+
+        }
+
+        h1 {
+            color: red;
+            text-align: center;
+        }
+
+        div {
+            float: left;
+        }
+        p:hover{
+            cursor: pointer;
+        }
+
+        .file-text-visible {
+            width: 1000px;
+            height: 600px;
+            position: fixed;
+            border: 1px dotted blue;
+            box-shadow: 1px 1px 10px blue;
+            right: 20px;
+            top: 60px;
+        }
+
+        .file-text-hidden {
+            width: 1000px;
+            height: 600px;
+            position: fixed;
+            border: 1px dotted blue;
+            box-shadow: 1px 1px 10px blue;
+            right: 20px;
+            top: 60px;
+            display: none;
+        }
+
+        .modal-window {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: scroll;
+            background-color: rgba(0, 0, 0, 0.8);
+
+            z-index: 1;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            height: 60%;
+            margin-top: 50px;
+            margin-left: 9%;
+            overflow: scroll;
+        }
+
+        .close {
+            color: #888;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover{
+            cursor: pointer;
+        }
+
+      /*Selected item*/
+
+        .item-selected{
+            background-color: grey;
+        }
+    </style>
+</head>
+<body>
+
+
+<h1>File Manager</h1>
+
+<div id="content" class="treeview ">
+
+
+</div>
+
+
+<div class="modal-window" id="modal">
+    <div class="modal-content">
+    </div>
+    <span class="close">&times;</span>
+</div>
+<div>
+    <ul class="ul-list">
+        <li class="li-list"><img src="https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png" alt="" class="img-list"><div class="p-list">файл 1</div></li>
+        <li><img src="https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png" alt=""><p>файл 2</p></li>
+        <li><img src="https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png" alt=""><p>файл 3</p></li>
+        <li><img src="https://icon-icons.com/icons2/548/PNG/32/1455554839_line-60_icon-icons.com_53339.png" alt=""><p>файл 4</p></li>
+    </ul>
+
+
+</div>
+<script>/*Modal window script*/
+var modal = document.getElementById("modal");
+var span = document.getElementsByClassName("close")[0];
+
+span.onclick = function () {
+    modal.style.display = "none";
+
+}
+
+function displayModalWindow(text) {
+    modal.style.display = "block";
+    var modalContent = document.getElementsByClassName("modal-content")[0];
+    modalContent.innerText = text;
+
+}
+
+</script>
+
+<script>
+
+    function getDataFromAPI(element) {
+
+
+        setItemSelected(element);
+        var request = new XMLHttpRequest();
+        var elementID = ($(element)).attr("id");
+        var isDir = ($(element)).attr("data-isDirectory");
+
+        if (isDir == "false") {
+            getFileText(elementID)
+            return;
+        }
+        var url = "getFile/" + elementID.toString().replace(new RegExp("/", "g"), "<prefix>");
+
+        request.open("GET", url);
+        request.send();
+
+
+        request.onreadystatechange = function () {
+            if (request.readyState == 4 && request.status == 200)//request
+            {
+                var answer = request.responseText;
+                var files = JSON.parse(answer);
+
+                var ulElement = document.createElement('ul');
+                ulElement.setAttribute("class", "list-group");
+                for (var i = 0; i < files.length; i++) {
+                    var liElement = document.createElement('li');
+                    var pElement = document.createElement('p');
+                    pElement.setAttribute("data-isDirectory", files[i].directory.toString());
+                    pElement.setAttribute("onclick", "getDataFromAPI(this)");
+                    pElement.innerText = files[i].fileName;
+                    pElement.id = files[i].absolutePath;
+                    if (files[i].directory.toString() == "true") {
+                        liElement.setAttribute("class", "directory-style");
+                    }
+                    else {
+                        liElement.setAttribute("class", "file-style");
+
+                    }
+
+                    liElement.appendChild(pElement);
+                    ulElement.appendChild(liElement);
+                }
+
+                if (elementID == "content") {
+                    $(ulElement).appendTo(element);
+
+                } else {
+
+                    var parentElement = element.parentElement;
+                    $(ulElement).appendTo(parentElement);
+                }
+            }
+
+
+        };
+
+
+    }
+
+
+    function getFileText(filePath) {
+
+        var request = new XMLHttpRequest();
+        var url = "getFileText/" + filePath.toString().replace(new RegExp("/", "g"), "<prefix>");
+
+        request.open("GET", url);
+        request.send();
+
+        request.onreadystatechange = function () {
+
+            if (request.readyState == 4 && request.status == 200)//request
+            {
+                var answer = request.responseText;
+                displayModalWindow(answer);
+            }
+        }
+
+
+    }
+
+    function setItemSelected(item){
+
+/*        var previousItem = document.getElementsByClassName("item-selected")[0];
+        if(!(previousItem==null||previousItem===undefined))
+           $(previousItem).removeClass("item-selected")*/
+
+
+
+
+        $(".item-selected").removeClass("item-selected");
+        var itemId =($(item)).attr("id");
+        if (itemId == "content") {
+            return;
+        }
+        item.setAttribute("class", "item-selected");
+
+    }
+
+
+</script>
+
+
+</body>
+</html>
